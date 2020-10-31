@@ -1,0 +1,4 @@
+nmap -sV --script=vulscan/vulscan.nse 192.168.56.101 >> retorna não sei bem o quê, mas devem ser vulnerabilidades
+
+admin@integratingsolutions.net >> entregar o email do admin pode ser perigoso pois através dum ataque por exemplo de 'brute force'
+podemos conseguir fazer login e acessar a dados confidenciais
