@@ -1,0 +1,3 @@
+<img src="" /> e <script>alert("Já estas Cândido")</script>
+
+Tanto 'title' como 'content' estão suscetíveis a este tipo de ataques

