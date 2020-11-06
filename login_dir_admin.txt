@@ -1,0 +1,9 @@
+Depois de conseguir fazer login...
+
+Ir para http://192.168.56.101/admin/
+
+Clicar em admin.php
+
+E dá um separador que daria para inserir de eliminar produtos mas parece que não está implementado
+
+Para fazer o download dos ficheiros : /var/www/html/admin/<admin.php|...>

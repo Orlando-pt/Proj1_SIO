@@ -1,0 +1,1 @@
+Este diretório é talvez o de mais perigoso que se pode encontrar neste site, pois permite ver como é feito o query à base de dados aquando do login. A partir do ficheiro 'login.php.txt' é possivel perceber como ludibriar tanto o campo de email como password no separador 'account' , e, em consequência aceder ao site.

@@ -1,0 +1,11 @@
+(Não é certeza)
+
+/var/www/html/
+			  index.php
+			  info.php
+			  server-status (era bom q conseguisse ver o conteúdo deste ficheiro)
+			  <*.php>
+			  admin/
+			  downloads/
+			  images/
+			  theme/
