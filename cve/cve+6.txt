@@ -1,0 +1,13 @@
+Com nmap-vulners (nmap --script nmap-vulners -sV -p -65504 192.168.56.101):
+CVE-2020-15778	6.8	https://vulners.com/cve/CVE-2020-15778
+
+
+Com vulscan (nmap --script vulscan -sV -p -65504 192.168.56.101):
+ssh
+CVE-1999-0661 >> 10
+CVE-2013-2249 >> 7.5
+
+http
+CVE-2012-2379 >> 10
+CVE-2012-0883 >> 6.9
+
