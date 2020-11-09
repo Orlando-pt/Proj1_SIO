@@ -21,3 +21,4 @@ tblProducts (id, type, name, price, detail)
 
 conteúdo da tabela tblMembers:
 1	admin@integratingsolutions.net	Administrator	354403ec41ad649d1e5a9f108f0e5245	Admin	1	1
+

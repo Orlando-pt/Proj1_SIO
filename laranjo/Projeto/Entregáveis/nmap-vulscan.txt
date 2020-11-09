@@ -1,0 +1,109 @@
+Nmap scan report for 192.168.1.106
+Host is up (0.00060s latency).
+Not shown: 996 closed ports
+PORT     STATE SERVICE  VERSION
+22/tcp   open  ssh      OpenSSH 7.1 (protocol 2.0)
+| vulscan: VulDB - https://vuldb.com:
+| No findings
+| 
+| MITRE CVE - https://cve.mitre.org:
+| No findings
+| 
+| SecurityFocus - https://www.securityfocus.com/bid/:
+| No findings
+| 
+| IBM X-Force - https://exchange.xforce.ibmcloud.com:
+| No findings
+| 
+| Exploit-DB - https://www.exploit-db.com:
+| No findings
+| 
+| OpenVAS (Nessus) - http://www.openvas.org:
+| No findings
+| 
+| SecurityTracker - https://www.securitytracker.com:
+| No findings
+| 
+| OSVDB - http://www.osvdb.org:
+| No findings
+|_
+80/tcp   open  http     Apache httpd 2.4.16 ((Fedora) OpenSSL/1.0.2d-fips PHP/5.6.14)
+|_http-server-header: Apache/2.4.16 (Fedora) OpenSSL/1.0.2d-fips PHP/5.6.14
+| vulscan: VulDB - https://vuldb.com:
+| No findings
+| 
+| MITRE CVE - https://cve.mitre.org:
+| No findings
+| 
+| SecurityFocus - https://www.securityfocus.com/bid/:
+| No findings
+| 
+| IBM X-Force - https://exchange.xforce.ibmcloud.com:
+| No findings
+| 
+| Exploit-DB - https://www.exploit-db.com:
+| No findings
+| 
+| OpenVAS (Nessus) - http://www.openvas.org:
+| No findings
+| 
+| SecurityTracker - https://www.securitytracker.com:
+| No findings
+| 
+| OSVDB - http://www.osvdb.org:
+| No findings
+|_
+443/tcp  open  ssl/http Apache httpd 2.4.16 ((Fedora) OpenSSL/1.0.2d-fips PHP/5.6.14)
+|_http-server-header: Apache/2.4.16 (Fedora) OpenSSL/1.0.2d-fips PHP/5.6.14
+| vulscan: VulDB - https://vuldb.com:
+| No findings
+| 
+| MITRE CVE - https://cve.mitre.org:
+| No findings
+| 
+| SecurityFocus - https://www.securityfocus.com/bid/:
+| No findings
+| 
+| IBM X-Force - https://exchange.xforce.ibmcloud.com:
+| No findings
+| 
+| Exploit-DB - https://www.exploit-db.com:
+| No findings
+| 
+| OpenVAS (Nessus) - http://www.openvas.org:
+| No findings
+| 
+| SecurityTracker - https://www.securitytracker.com:
+| No findings
+| 
+| OSVDB - http://www.osvdb.org:
+| No findings
+|_
+3306/tcp open  mysql    MariaDB (unauthorized)
+| vulscan: VulDB - https://vuldb.com:
+| No findings
+| 
+| MITRE CVE - https://cve.mitre.org:
+| No findings
+| 
+| SecurityFocus - https://www.securityfocus.com/bid/:
+| No findings
+| 
+| IBM X-Force - https://exchange.xforce.ibmcloud.com:
+| No findings
+| 
+| Exploit-DB - https://www.exploit-db.com:
+| No findings
+| 
+| OpenVAS (Nessus) - http://www.openvas.org:
+| No findings
+| 
+| SecurityTracker - https://www.securitytracker.com:
+| No findings
+| 
+| OSVDB - http://www.osvdb.org:
+| No findings
+|_
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 12.73 seconds

