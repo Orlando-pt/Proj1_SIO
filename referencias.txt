@@ -1,0 +1,39 @@
+Para perceber php:
+https://www.w3schools.com/php/DEFAULT.asp
+https://www.php.net/manual/pt_BR/function.include.php
+https://www.php.net/manual/en/function.shell-exec.php
+
+Para xss:
+https://owasp.org/www-community/attacks/xss/
+http://html5sec.org/
+https://developer.mozilla.org/pt-PT/docs/Web/HTTP/CORS
+
+Para sql-injection:
+https://www.php.net/manual/en/security.database.sql-injection.php
+
+Para tentar entrar pelo ssh:
+https://www.hackingarticles.in/ssh-penetration-testing-port-22/
+https://community.turgensec.com/ssh-hacking-guide/
+
+Para nmap:
+https://youtu.be/bKUjyeQ78AU
+https://youtu.be/O_L0G0NHTG0
+
+Para mysql:
+https://dev.mysql.com/doc/refman/8.0/en/select-into.html
+
+Para sqlmap:
+https://www.hackingarticles.in/file-system-access-on-webserver-using-sqlmap/
+https://www.hackingarticles.in/shell-uploading-in-web-server-using-sqlmap/
+https://cyberbotnet.com/2020-04-09/Upload-Web-Shell-Using-SQLmap
+
+Para nikto:
+https://hackertarget.com/nikto-tutorial/
+https://www.cardinaleconcepts.com/add-custom-header-to-nikto-scan/
+https://www.sevenlayers.com/index.php/57-nikto-user-agent-change
+https://geekflare.com/nikto-webserver-scanner/
+https://www.sciencedirect.com/topics/computer-science/nikto
+https://redteamtutorials.com/2018/10/24/nikto-cheatsheet/  --> ver
+
+Para o dirb:
+https://tools.kali.org/web-applications/dirb
