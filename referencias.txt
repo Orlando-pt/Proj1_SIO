@@ -18,6 +18,7 @@ https://community.turgensec.com/ssh-hacking-guide/
 Para nmap:
 https://youtu.be/bKUjyeQ78AU
 https://youtu.be/O_L0G0NHTG0
+https://nmap.org/man/pt_PT/man-version-detection.html
 
 Para mysql:
 https://dev.mysql.com/doc/refman/8.0/en/select-into.html

